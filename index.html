@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Olivia BJJ">
+<meta name="theme-color" content="#c0000a">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>A Jornada da Olivia</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:#0a0a1a;}
+body{font-family:'Press Start 2P',monospace;}
+
+.screen{display:none;flex-direction:column;height:100vh;height:100dvh;}
+.screen.active{display:flex;}
+
+/* ══ INTRO ══ */
+#s-intro{background:linear-gradient(160deg,#0a0a1a 0%,#1a0a2e 60%,#2d0a1a 100%);
+  align-items:center;justify-content:center;text-align:center;gap:14px;padding:24px;
+  position:relative;overflow:hidden;}
+.star-canvas{position:absolute;inset:0;pointer-events:none;}
+.intro-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:14px;}
+.game-logo{color:#ffd700;font-size:clamp(9px,3vw,13px);line-height:1.9;
+  text-shadow:0 0 24px #ffd700bb;letter-spacing:2px;}
+.game-sub{color:#c0000a;font-size:7px;letter-spacing:3px;}
+.belt-row-preview{display:flex;gap:4px;justify-content:center;}
+.bp{width:18px;height:7px;border-radius:1px;border:1px solid rgba(255,255,255,0.15);}
+.btn-primary{background:#c0000a;color:#fff;border:none;font-family:'Press Start 2P',monospace;
+  font-size:8px;padding:14px 28px;border-radius:7px;cursor:pointer;letter-spacing:2px;
+  box-shadow:0 4px 0 #5a0000;active-transform:translateY(2px);touch-action:manipulation;}
+.btn-primary:active{transform:translateY(2px);box-shadow:0 2px 0 #5a0000;}
+
+/* ══ TOPBAR ══ */
+.topbar{background:#c0000a;padding:8px 14px;display:flex;align-items:center;
+  justify-content:space-between;border-bottom:3px solid #ff4444;flex-shrink:0;
+  padding-top:calc(8px + env(safe-area-inset-top));}
+.ttl{color:#fff;font-size:7px;letter-spacing:1px;text-shadow:2px 2px #5a0000;}
+.xp-wrap{display:flex;align-items:center;gap:5px;}
+.xp-lbl{color:#ffd700;font-size:5px;}
+.xp-bar{width:72px;height:7px;background:#5a0000;border:1px solid #ff8888;border-radius:2px;overflow:hidden;}
+.xp-fill{height:100%;background:#ffd700;width:0%;transition:width 0.5s;}
+.xp-num{color:#ffd700;font-size:5px;}
+
+/* ══ TABS ══ */
+.tabs{display:flex;background:#12122a;border-bottom:2px solid #1e1e40;flex-shrink:0;}
+.tab{flex:1;padding:9px 4px;text-align:center;color:#555;font-size:5px;cursor:pointer;
+  letter-spacing:1px;border-bottom:2px solid transparent;touch-action:manipulation;}
+.tab.active{color:#ffd700;border-bottom-color:#ffd700;}
+
+/* ══ CONTENT ══ */
+.content{flex:1;overflow-y:auto;padding:12px;-webkit-overflow-scrolling:touch;
+  padding-bottom:calc(12px + env(safe-area-inset-bottom));}
+
+/* ══ DOJO ══ */
+.dojo-hero{background:#1a0a2e;border-radius:10px;padding:14px;display:flex;
+  flex-direction:column;align-items:center;gap:8px;margin-bottom:12px;
+  position:relative;overflow:hidden;}
+.dojo-hero::before{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,0.015) 0,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 24px),
+  repeating-linear-gradient(90deg,rgba(255,255,255,0.015) 0,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 24px);}
+.dojo-hero>*{position:relative;z-index:1;}
+.char-name-lbl{color:#ffd700;font-size:9px;letter-spacing:2px;text-shadow:0 0 8px #ffd700aa;}
+.belt-display{display:flex;align-items:center;gap:8px;}
+.belt-swatch{width:50px;height:10px;border-radius:2px;border:1px solid rgba(255,255,255,0.3);}
+.belt-name-lbl{color:#ccc;font-size:6px;}
+.glow-ring{width:80px;height:10px;
+  background:radial-gradient(ellipse,rgba(192,0,10,0.4) 0%,transparent 70%);
+  border-radius:50%;margin-top:-4px;}
+.section-lbl{color:#ffd700;font-size:6px;letter-spacing:2px;margin-bottom:8px;}
+
+/* ══ CARTA DA SOPHIA ══ */
+.sophia-carta{background:#12122a;border:1px solid #1a5fa8;border-radius:10px;
+  padding:12px;margin-bottom:14px;position:relative;}
+.carta-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.carta-avatar{width:34px;height:34px;background:#0d0d20;border-radius:50%;
+  border:2px solid #1a5fa8;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.carta-de{color:#1a5fa8;font-size:5px;letter-spacing:1px;}
+.carta-nome{color:#fff;font-size:6px;margin-top:2px;}
+.carta-texto{color:#ccc;font-size:6px;line-height:2.2;white-space:pre-line;}
+.carta-badge{position:absolute;top:10px;right:10px;background:#1a5fa8;color:#fff;
+  font-size:4px;padding:3px 6px;border-radius:3px;}
+
+/* ══ MISSOES ══ */
+.mission-card{background:#12122a;border:1px solid #2a2a4a;border-radius:8px;
+  padding:10px;margin-bottom:6px;display:flex;align-items:center;gap:10px;
+  cursor:pointer;transition:border-color 0.2s;touch-action:manipulation;}
+.mission-card:active:not(.done){transform:scale(0.98);}
+.mission-card.done{background:rgba(0,160,70,0.1);border-color:rgba(0,160,70,0.4);cursor:default;}
+.mission-card.quiz-card{border-color:#6a2fa0;}
+.mission-card.casa-card{border-color:#b86000;}
+.mcheck{width:20px;height:20px;border:2px solid #444;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.mission-card.done .mcheck{background:#2d8a3e;border-color:#2d8a3e;color:#fff;}
+.minfo{flex:1;}
+.mtitle{color:#fff;font-size:6px;margin-bottom:3px;}
+.msub{color:#666;font-size:5px;line-height:1.5;}
+.mxp{color:#ffd700;font-size:5px;white-space:nowrap;}
+.mbadge{font-size:4px;padding:2px 5px;border-radius:3px;margin-left:4px;}
+.quiz-badge{background:#3a1a6a;color:#c090ff;}
+.casa-badge{background:#3a2000;color:#f5a040;}
+
+/* ══ DIALOG BOX ══ */
+.dialog-box{background:#0d0d20;border:1px solid #2a2a4a;border-radius:10px;overflow:hidden;margin-top:10px;}
+.dialog-box.sophia-box{border-color:#1a5fa8;}
+.dialog-speaker{background:#c0000a;padding:6px 12px;display:flex;align-items:center;gap:8px;}
+.dialog-speaker.sophia-spk{background:#0d1a3a;border-bottom:1px solid #1a5fa8;}
+.sp-avatar-wrap{width:30px;height:30px;border-radius:50%;border:2px solid #ffd700;
+  overflow:hidden;flex-shrink:0;background:#0d0d20;display:flex;align-items:center;justify-content:center;}
+.sp-avatar-wrap.sophia-av{border-color:#1a5fa8;}
+.sp-nm{color:#ffd700;font-size:6px;letter-spacing:1px;}
+.sp-nm.sophia-nm{color:#7ab8ff;}
+.dialog-body{padding:12px;min-height:64px;}
+.dialog-txt{color:#ddd;font-size:6px;line-height:2.1;white-space:pre-line;}
+.dialog-next{text-align:right;padding:0 12px 10px;}
+.dialog-next button{background:none;border:1px solid #444;color:#777;
+  font-family:'Press Start 2P',monospace;font-size:5px;padding:5px 10px;
+  border-radius:4px;cursor:pointer;touch-action:manipulation;}
+.dialog-next button:hover{border-color:#ffd700;color:#ffd700;}
+
+/* ══ TRILHA ══ */
+.trail-item{display:flex;align-items:center;gap:10px;padding:8px 10px;
+  border-radius:7px;border:1px solid transparent;margin-bottom:2px;}
+.trail-item.active{background:rgba(192,0,10,0.2);border-color:#c0000a;}
+.trail-item.done{background:rgba(0,160,70,0.08);border-color:rgba(0,160,70,0.3);}
+.trail-item.locked{opacity:0.35;}
+.trail-belt{display:flex;flex-direction:column;gap:2px;min-width:46px;}
+.tb-main{height:8px;border-radius:1px;border:1px solid rgba(255,255,255,0.15);}
+.tb-stripe{height:4px;border-radius:1px;}
+.trail-info{flex:1;}
+.ti-name{color:#fff;font-size:6px;margin-bottom:2px;}
+.ti-xp{color:#888;font-size:5px;}
+.trail-icon{font-size:11px;}
+.connector{width:2px;height:6px;background:#222;margin:0 0 2px 28px;}
+.connector.done{background:#2d8a3e;}
+
+/* ══ ELENCO ══ */
+.cast-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cast-card{background:#12122a;border:1px solid #2a2a4a;border-radius:9px;
+  padding:10px;cursor:pointer;transition:border-color 0.2s;
+  display:flex;flex-direction:column;align-items:center;gap:6px;touch-action:manipulation;}
+.cast-card.sel{border-color:#ffd700;background:#1a1a3a;}
+.cast-card.sel-sophia{border-color:#1a5fa8;background:#0d1a2e;}
+.cc-name{color:#fff;font-size:6px;text-align:center;}
+.cc-role{color:#777;font-size:5px;text-align:center;line-height:1.6;}
+.cc-belt{width:30px;height:5px;border-radius:1px;border:1px solid rgba(255,255,255,0.2);}
+
+/* ══ QUIZ OVERLAY ══ */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);
+  z-index:200;align-items:center;justify-content:center;padding:16px;}
+.overlay.show{display:flex;}
+.quiz-box{background:#0d0d20;border:2px solid #6a2fa0;border-radius:14px;
+  padding:20px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px;}
+.quiz-header{display:flex;justify-content:space-between;align-items:center;}
+.quiz-title{color:#c090ff;font-size:7px;letter-spacing:1px;}
+.quiz-progress{color:#666;font-size:6px;}
+.quiz-question{background:#12122a;border-radius:8px;padding:16px;text-align:center;}
+.quiz-q-txt{color:#fff;font-size:clamp(12px,4vw,18px);line-height:1.8;}
+.quiz-q-sub{color:#888;font-size:5px;margin-top:6px;}
+.quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.quiz-opt{background:#1a1a3a;border:2px solid #2a2a5a;border-radius:8px;
+  padding:14px 8px;color:#fff;font-family:'Press Start 2P',monospace;
+  font-size:clamp(10px,3vw,14px);cursor:pointer;text-align:center;
+  transition:all 0.15s;touch-action:manipulation;}
+.quiz-opt:active{transform:scale(0.95);}
+.quiz-opt.correct{background:#1a4a1a;border-color:#2d8a3e;color:#90ff90;}
+.quiz-opt.wrong{background:#4a1a1a;border-color:#c0000a;color:#ff9090;}
+.quiz-feedback{text-align:center;font-size:7px;min-height:18px;}
+.quiz-result{text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center;}
+.result-score{font-size:32px;}
+.result-msg{color:#ffd700;font-size:8px;line-height:1.8;}
+.result-sub{color:#888;font-size:5px;line-height:1.8;white-space:pre-line;}
+.btn-quiz{background:#6a2fa0;color:#fff;border:none;font-family:'Press Start 2P',monospace;
+  font-size:6px;padding:10px 20px;border-radius:6px;cursor:pointer;touch-action:manipulation;}
+.btn-quiz.retry{background:#333;}
+.btn-row{display:flex;gap:8px;width:100%;}
+.btn-row .btn-quiz{flex:1;}
+
+/* ══ CASA OVERLAY ══ */
+.casa-box{background:#0d0d20;border:2px solid #f5820d;border-radius:14px;
+  padding:20px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px;}
+.casa-title{color:#f5a040;font-size:7px;letter-spacing:1px;text-align:center;}
+.casa-req{color:#888;font-size:5px;text-align:center;line-height:1.8;}
+.casa-tasks{display:flex;flex-direction:column;gap:6px;}
+.casa-task{display:flex;align-items:center;gap:10px;background:#12122a;
+  border:1px solid #2a2a4a;border-radius:8px;padding:10px;cursor:pointer;
+  transition:all 0.2s;touch-action:manipulation;}
+.casa-task:active{transform:scale(0.98);}
+.casa-task.checked{background:rgba(0,160,70,0.12);border-color:rgba(0,160,70,0.4);}
+.casa-check{width:22px;height:22px;border:2px solid #444;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.casa-task.checked .casa-check{background:#2d8a3e;border-color:#2d8a3e;color:#fff;}
+.casa-task-name{color:#fff;font-size:6px;flex:1;}
+.casa-task-icon{font-size:16px;flex-shrink:0;}
+.btn-casa{background:#f5820d;color:#fff;border:none;font-family:'Press Start 2P',monospace;
+  font-size:6px;padding:12px 20px;border-radius:6px;cursor:pointer;width:100%;
+  touch-action:manipulation;}
+.btn-casa:disabled{background:#333;color:#555;cursor:default;}
+.btn-voltar{background:#222;color:#888;border:1px solid #333;font-family:'Press Start 2P',monospace;
+  font-size:6px;padding:10px 20px;border-radius:6px;cursor:pointer;width:100%;
+  touch-action:manipulation;}
+
+/* ══ GRADUAÇÃO ══ */
+.grad-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);
+  z-index:300;align-items:center;justify-content:center;padding:16px;}
+.grad-ov.show{display:flex;}
+.grad-box{background:#0a0a1a;border:2px solid #ffd700;border-radius:14px;
+  padding:22px 18px;text-align:center;max-width:310px;width:100%;}
+.grad-ttl{color:#ffd700;font-size:10px;line-height:1.8;margin-bottom:10px;}
+.grad-belt{width:80px;height:13px;border-radius:3px;margin:0 auto 14px;border:2px solid rgba(255,255,255,0.3);}
+.grad-msgs{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.grad-msg-item{border-radius:8px;padding:10px;text-align:left;}
+.sophia-msg{background:#0d1a2e;border:1px solid #1a5fa8;}
+.lari-msg{background:#1a0a0a;border:1px solid #c0000a;}
+.grad-msg-speaker{font-size:5px;margin-bottom:4px;letter-spacing:1px;}
+.grad-msg-txt{font-size:5px;line-height:2;white-space:pre-line;}
+.grad-btn{background:#c0000a;color:#fff;border:none;font-family:'Press Start 2P',monospace;
+  font-size:7px;padding:12px 22px;border-radius:6px;cursor:pointer;touch-action:manipulation;}
+
+/* ══ TOAST ══ */
+.toast{position:fixed;top:calc(16px + env(safe-area-inset-top));left:50%;
+  transform:translateX(-50%) translateY(-60px);background:#ffd700;color:#1a1000;
+  font-family:'Press Start 2P',monospace;font-size:6px;padding:8px 16px;
+  border-radius:6px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* ══ BANNER INSTALAR ══ */
+.install-banner{background:#1a1a3a;border:1px solid #ffd700;border-radius:10px;
+  padding:10px 14px;margin:0 0 12px;display:flex;align-items:center;gap:10px;}
+.install-banner.hidden{display:none;}
+.install-txt{flex:1;color:#ffd700;font-size:5px;line-height:1.8;}
+.install-btn{background:#ffd700;color:#0a0a1a;border:none;font-family:'Press Start 2P',monospace;
+  font-size:5px;padding:6px 10px;border-radius:5px;cursor:pointer;white-space:nowrap;touch-action:manipulation;}
+.install-close{color:#555;font-size:10px;cursor:pointer;padding:4px;}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- QUIZ -->
+<div class="overlay" id="quizOv">
+  <div class="quiz-box">
+    <div class="quiz-header">
+      <span class="quiz-title">DESAFIO DE TABUADA</span>
+      <span class="quiz-progress" id="quizProg">1/5</span>
+    </div>
+    <div id="quizBody"></div>
+  </div>
+</div>
+
+<!-- CASA -->
+<div class="overlay" id="casaOv">
+  <div class="casa-box">
+    <div class="casa-title">MISSAO: AJUDA EM CASA</div>
+    <div class="casa-req">Marque pelo menos 2 tarefas que voce fez hoje!</div>
+    <div class="casa-tasks" id="casaTasks"></div>
+    <button class="btn-casa" id="casaConfirm" onclick="confirmCasa()" disabled>CONFIRMAR ✓</button>
+    <button class="btn-voltar" onclick="closeCasa()">VOLTAR</button>
+  </div>
+</div>
+
+<!-- GRADUAÇÃO -->
+<div class="grad-ov" id="gradOv">
+  <div class="grad-box">
+    <div class="grad-ttl">GRADUACAO!</div>
+    <div class="grad-belt" id="gradBelt"></div>
+    <div class="grad-msgs">
+      <div class="grad-msg-item sophia-msg">
+        <div class="grad-msg-speaker" style="color:#7ab8ff;">SOPHIA</div>
+        <div class="grad-msg-txt" id="gradMsgSophia"></div>
+      </div>
+      <div class="grad-msg-item lari-msg">
+        <div class="grad-msg-speaker" style="color:#ffa0a0;">SENSEI LARI</div>
+        <div class="grad-msg-txt" id="gradMsgLari"></div>
+      </div>
+    </div>
+    <button class="grad-btn" onclick="closeGrad()">CONTINUAR!</button>
+  </div>
+</div>
+
+<!-- ══ TELA INTRO ══ -->
+<div class="screen active" id="s-intro">
+  <canvas class="star-canvas" id="starCanvas"></canvas>
+  <div class="intro-inner">
+    <div class="game-logo">A JORNADA<br>DA OLIVIA</div>
+    <div class="game-sub">UM DOJO. UMA HEROINA.</div>
+    <svg width="90" height="130" viewBox="0 0 30 44" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
+      <rect x="10" y="1" width="10" height="10" rx="2" fill="#d4a472"/>
+      <rect x="8" y="3" width="2" height="8" fill="#5a3010"/><rect x="20" y="3" width="2" height="8" fill="#5a3010"/>
+      <rect x="10" y="1" width="10" height="5" fill="#5a3010" rx="1"/>
+      <rect x="8" y="11" width="14" height="17" rx="2" fill="#f5f5f5"/>
+      <rect x="12" y="11" width="6" height="10" fill="#ececec"/>
+      <rect x="6" y="12" width="4" height="12" rx="1" fill="#f5f5f5"/><rect x="20" y="12" width="4" height="12" rx="1" fill="#f5f5f5"/>
+      <rect x="11" y="25" width="8" height="3" rx="1" fill="#f5f5f5" stroke="#ccc" stroke-width="0.5"/>
+      <rect x="8" y="28" width="6" height="14" rx="1" fill="#f5f5f5"/><rect x="16" y="28" width="6" height="14" rx="1" fill="#f5f5f5"/>
+      <rect x="7" y="43" width="6" height="3" rx="1" fill="#d4a472"/><rect x="17" y="43" width="6" height="3" rx="1" fill="#d4a472"/>
+    </svg>
+    <div class="belt-row-preview">
+      <div class="bp" style="background:#f5f5f5"></div><div class="bp" style="background:#aaa"></div>
+      <div class="bp" style="background:#f5d000"></div><div class="bp" style="background:#f5820d"></div>
+      <div class="bp" style="background:#2d8a3e"></div><div class="bp" style="background:#1a5fa8"></div>
+      <div class="bp" style="background:#6a2fa0"></div><div class="bp" style="background:#7a4010"></div>
+      <div class="bp" style="background:#1a1a1a"></div>
+    </div>
+    <button class="btn-primary" onclick="startGame()">JOGAR ▶</button>
+  </div>
+</div>
+
+<!-- ══ TELA JOGO ══ -->
+<div class="screen" id="s-game">
+  <div class="topbar">
+    <span class="ttl">OLIVIA</span>
+    <div class="xp-wrap">
+      <span class="xp-lbl">XP</span>
+      <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+      <span class="xp-num" id="xpNum">0</span>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('dojo')">DOJO</div>
+    <div class="tab" onclick="showTab('missoes')">MISSOES</div>
+    <div class="tab" onclick="showTab('trilha')">TRILHA</div>
+    <div class="tab" onclick="showTab('elenco')">ELENCO</div>
+  </div>
+
+  <!-- DOJO -->
+  <div class="content" id="content-dojo">
+    <div class="install-banner" id="installBanner">
+      <div class="install-txt">Instale o app<br>no seu celular!</div>
+      <button class="install-btn" id="installBtn" onclick="installApp()">INSTALAR</button>
+      <span class="install-close" onclick="dismissInstall()">✕</span>
+    </div>
+    <div class="dojo-hero">
+      <div class="char-name-lbl">OLIVIA</div>
+      <svg width="96" height="140" viewBox="0 0 30 44" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
+        <rect x="10" y="1" width="10" height="10" rx="2" fill="#d4a472"/>
+        <rect x="8" y="3" width="2" height="8" fill="#5a3010"/><rect x="20" y="3" width="2" height="8" fill="#5a3010"/>
+        <rect x="10" y="1" width="10" height="5" fill="#5a3010" rx="1"/>
+        <rect x="8" y="11" width="14" height="17" rx="2" fill="#f5f5f5"/>
+        <rect x="12" y="11" width="6" height="10" fill="#ececec"/>
+        <rect x="6" y="12" width="4" height="12" rx="1" fill="#f5f5f5"/><rect x="20" y="12" width="4" height="12" rx="1" fill="#f5f5f5"/>
+        <rect x="11" y="25" width="8" height="3" rx="1" id="beltRect" fill="#f5f5f5" stroke="#ccc" stroke-width="0.5"/>
+        <rect x="8" y="28" width="6" height="14" rx="1" fill="#f5f5f5"/><rect x="16" y="28" width="6" height="14" rx="1" fill="#f5f5f5"/>
+        <rect x="7" y="43" width="6" height="3" rx="1" fill="#d4a472"/><rect x="17" y="43" width="6" height="3" rx="1" fill="#d4a472"/>
+      </svg>
+      <div class="glow-ring"></div>
+      <div class="belt-display">
+        <div class="belt-swatch" id="beltSwatch" style="background:#f5f5f5"></div>
+        <span class="belt-name-lbl" id="beltNameLbl">FAIXA BRANCA</span>
+      </div>
+    </div>
+
+    <div class="sophia-carta">
+      <div class="carta-badge">CARTA DA IRMA</div>
+      <div class="carta-header">
+        <div class="carta-avatar" id="cartaAvatar"></div>
+        <div><div class="carta-de">DE:</div><div class="carta-nome">SOPHIA</div></div>
+      </div>
+      <div class="carta-texto" id="cartaTexto"></div>
+    </div>
+
+    <div class="section-lbl">MISSOES ATIVAS</div>
+    <div id="dojoMissions"></div>
+
+    <div class="dialog-box" style="margin-top:14px">
+      <div class="dialog-speaker">
+        <div class="sp-avatar-wrap" id="dojoSpAvatar"></div>
+        <span class="sp-nm">SENSEI LARI</span>
+      </div>
+      <div class="dialog-body"><div class="dialog-txt" id="dojoDialogTxt"></div></div>
+    </div>
+  </div>
+
+  <!-- MISSOES -->
+  <div class="content" id="content-missoes" style="display:none">
+    <div class="section-lbl" id="missLabel"></div>
+    <div id="missionList"></div>
+  </div>
+
+  <!-- TRILHA -->
+  <div class="content" id="content-trilha" style="display:none">
+    <div class="section-lbl">TRILHA DE FAIXAS</div>
+    <div id="trailList"></div>
+  </div>
+
+  <!-- ELENCO -->
+  <div class="content" id="content-elenco" style="display:none">
+    <div class="section-lbl">ELENCO DO DOJO</div>
+    <div class="cast-grid" id="castGrid"></div>
+    <div class="dialog-box" id="castDialogBox" style="margin-top:12px">
+      <div class="dialog-speaker" id="castSpkBar">
+        <div class="sp-avatar-wrap" id="castSpAvatar"></div>
+        <span class="sp-nm" id="castSpName"></span>
+      </div>
+      <div class="dialog-body"><div class="dialog-txt" id="castDialogTxt"></div></div>
+      <div class="dialog-next"><button onclick="nextCastDialog()">PROXIMO &gt;</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ DADOS ══
+const BELTS=[
+  {name:'BRANCA',color:'#f5f5f5',stripe:null,xpNeeded:0},
+  {name:'CINZA',color:'#aaaaaa',stripe:'#f5f5f5',xpNeeded:100},
+  {name:'AMARELA',color:'#f5d000',stripe:'#f5f5f5',xpNeeded:220},
+  {name:'LARANJA',color:'#f5820d',stripe:'#f5f5f5',xpNeeded:380},
+  {name:'VERDE',color:'#2d8a3e',stripe:'#f5f5f5',xpNeeded:580},
+  {name:'AZUL',color:'#1a5fa8',stripe:'#f5f5f5',xpNeeded:830},
+  {name:'ROXA',color:'#6a2fa0',stripe:'#f5f5f5',xpNeeded:1130},
+  {name:'MARROM',color:'#7a4010',stripe:'#f5f5f5',xpNeeded:1530},
+  {name:'PRETA',color:'#1a1a1a',stripe:'#c0000a',xpNeeded:2030},
+];
+
+const MISSIONS={
+  0:[
+    {id:'b0m0',title:'Ler 1 livro',sub:'Qualquer livro que voce escolher',xp:35,tipo:'check'},
+    {id:'b0m1',title:'5 dias de treino',sub:'Apareceu no dojo, ja venceu!',xp:35,tipo:'check'},
+    {id:'b0m2',title:'Tabuada do 1 ao 3',sub:'Responda 5 perguntas — acerte 4!',xp:30,tipo:'quiz',tabMin:1,tabMax:3},
+    {id:'b0m3',title:'Ajuda em Casa',sub:'Faca pelo menos 2 tarefas',xp:25,tipo:'casa'},
+  ],
+  1:[
+    {id:'b1m0',title:'Tomar o remedio',sub:'Todo dia, sem esquecer!',xp:40,tipo:'check'},
+    {id:'b1m1',title:'Ler mais 1 livro',sub:'Pode ser em quadrinhos!',xp:30,tipo:'check'},
+    {id:'b1m2',title:'Tabuada do 4 ao 6',sub:'Responda 5 perguntas — acerte 4!',xp:35,tipo:'quiz',tabMin:4,tabMax:6},
+    {id:'b1m3',title:'Ajuda em Casa',sub:'Faca pelo menos 2 tarefas',xp:25,tipo:'casa'},
+  ],
+  2:[
+    {id:'b2m0',title:'Aprender fracoes',sub:'Metade, terco, quarto...',xp:45,tipo:'check'},
+    {id:'b2m1',title:'Ler 2 livros novos',sub:'Seu cerebro agradece',xp:40,tipo:'check'},
+    {id:'b2m2',title:'Tabuada do 7 ao 9',sub:'Responda 5 perguntas — acerte 4!',xp:40,tipo:'quiz',tabMin:7,tabMax:9},
+    {id:'b2m3',title:'Ajuda em Casa',sub:'Faca pelo menos 2 tarefas',xp:25,tipo:'casa'},
+  ],
+  3:[
+    {id:'b3m0',title:'Nota acima de 8',sub:'Dentro e fora do tatame',xp:50,tipo:'check'},
+    {id:'b3m1',title:'15 dias de treino',sub:'A rotina e a chave',xp:40,tipo:'check'},
+    {id:'b3m2',title:'Tabuada do 1 ao 9',sub:'Desafio completo — acerte 4!',xp:45,tipo:'quiz',tabMin:1,tabMax:9},
+    {id:'b3m3',title:'Ajuda em Casa',sub:'Faca pelo menos 2 tarefas',xp:25,tipo:'casa'},
+  ],
+  4:[
+    {id:'b4m0',title:'Ler 3 livros',sub:'Sabedoria e poder',xp:50,tipo:'check'},
+    {id:'b4m1',title:'20 dias de treino',sub:'Voce ja e uma guerreira',xp:40,tipo:'check'},
+    {id:'b4m2',title:'Tabuada do 1 ao 9',sub:'Desafio completo — acerte 4!',xp:50,tipo:'quiz',tabMin:1,tabMax:9},
+    {id:'b4m3',title:'Ajuda em Casa',sub:'Faca pelo menos 2 tarefas',xp:25,tipo:'casa'},
+  ],
+};
+
+const CASA_TASKS=[
+  {id:'cama',icon:'🛏️',name:'Arrumar a cama'},
+  {id:'roupas',icon:'👕',name:'Dobrar roupas'},
+  {id:'mesa',icon:'🍽️',name:'Arrumar a mesa'},
+  {id:'lixo',icon:'🗑️',name:'Jogar o lixo fora'},
+  {id:'brinquedos',icon:'🧸',name:'Guardar brinquedos'},
+  {id:'varrer',icon:'🧹',name:'Varrer um comodo'},
+];
+
+const SOPHIA_CARTAS=[
+  'Ei Olivia!\nA faixa branca e o comeco\nde tudo. Eu tambem fui branca.\nNao tenha pressa. Te amo!',
+  'Irmazinha! Faixa cinza!\nLembro quando conquistei\na minha. Chorei de feliz.\nVoce esta no caminho certo.',
+  'Faixa amarela agora!\nEssa foi a que mais me\ndeu trabalho. Mas voce\ne mais determinada que eu!',
+  'Laranja! Que orgulho!\nA Sensei Lari deve estar\nradiante. Continue assim!',
+  'VERDE! Oba!\nVoce esta crescendo tao\nrapido. Ja penso em quando\nvamos treinar de igual!',
+  'Faixa AZUL, Olivia!\nAgora somos iguais!\nMas nao fique so aqui...',
+  'Roxa?! Voce ja me\nsuperou! Sou sua fa\nnumero 1 pra sempre!',
+  'Marrom! Um passo\npara o topo! Pai deve\nestar com lagrimas nos olhos.',
+  'FAIXA PRETA!\nOlivia, voce conseguiu!\nSou a irma mais orgulhosa\ndo mundo inteiro!!',
+];
+
+const SOPHIA_GRAD=['A primeira de muitas!\nEu sabia que voce ia longe.','Crescendo rapido!\nContinua, irmazinha!','Cada faixa e uma vitoria\nque voce nunca perde.','Orgulho demais de voce!','Voce ja e mais avancada\nque eu fui nessa idade!','Iguais agora!\nMas voce nao para por aqui!','Voce ja me superou.\nQue honra ser sua irma!','Quase la! Nao para agora!','A faixa mais linda do\ndojo e a que voce tem!'];
+const LARI_GRAD=['Faixa cinza conquistada.\nSua dedicacao e visivel.','Amarela! O dojo vibra\ncom sua evolucao.','Faixa laranja!\nVoce nao e mais iniciante.','Verde! A metade do\ncaminho ja ficou pra tras.','Azul! Seu compromisso\nfala mais alto que palavras.','Roxa! Poucos chegam\naqui. Voce e especial.','Marrom! O tatame\nreconhece sua trajetoria.','FAIXA PRETA!\nVoce honrou o dojo, Olivia.'];
+
+const CHARS={
+  lari:{name:'SENSEI LARI',beltColor:'#1a1a1a',role:'Sua professora. Guia da jornada.',
+    dialogs:['Olivia, bem-vinda ao dojo.\nSua jornada comeca hoje.','A faixa branca nao e fraqueza.\nE o inicio de tudo.','Complete suas missoes.\nCada uma te aproxima\nda proxima faixa.','O jiu-jitsu ensina o corpo\ne liberta a mente. Foco!']},
+  pai:{name:'PAI',beltColor:'#1a1a1a',role:'Mestre das sombras. Sempre presente.',
+    dialogs:['Filha, estou aqui.\nSempre estarei.','O jiu-jitsu me ensinou\nque a vida e como o tatame:\nvoce cai, voce levanta.','Confie no processo.\nEu acredito em voce.','Sou faixa preta, mas ja\nfui branca como voce.']},
+  olivia:{name:'OLIVIA',beltColor:'#f5f5f5',role:'A heroina. Sua jornada comeca.',
+    dialogs:['Eu sou a Olivia!\nTenho 9 anos e\nvou ser faixa preta!','Preciso ser disciplinada\ndentro e fora do tatame.','Meu pai e faixa preta.\nMinha irma e faixa azul.\nMinha vez esta chegando!','Cada missao concluida\ne um passo mais perto\ndo meu sonho!']},
+  sophia:{name:'SOPHIA',beltColor:'#1a5fa8',role:'Irma e mentora. Sempre ao seu lado.',
+    dialogs:['Ei irmazinha! Estou\nsempre torcendo por voce!','Quando eu era novinha,\nqueria alguem pra me guiar.\nSou essa pessoa pra voce.','Cada treino que voce faz\nme deixa muito orgulhosa.','Um dia a gente treina\njuntas de igual pra igual!']},
+};
+
+const SPRITES={
+  lari:`<svg width="28" height="28" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated"><rect x="12" y="2" width="10" height="10" rx="2" fill="#c8956c"/><rect x="13" y="1" width="8" height="5" rx="2" fill="#3a2010"/><rect x="11" y="3" width="2" height="6" fill="#3a2010"/><rect x="21" y="3" width="2" height="6" fill="#3a2010"/><rect x="9" y="12" width="16" height="14" rx="2" fill="#1a1a1a"/><rect x="12" y="24" width="10" height="3" rx="1" fill="#c0000a"/></svg>`,
+  pai:`<svg width="28" height="28" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated"><rect x="11" y="2" width="12" height="11" rx="2" fill="#c8956c"/><rect x="12" y="3" width="10" height="4" rx="1" fill="#a0724a"/><rect x="9" y="13" width="16" height="14" rx="2" fill="#f0f0f0"/><rect x="13" y="25" width="8" height="3" rx="1" fill="#c0000a"/></svg>`,
+  olivia:`<svg width="28" height="28" viewBox="0 0 30 34" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated"><rect x="10" y="2" width="10" height="10" rx="2" fill="#d4a472"/><rect x="8" y="4" width="2" height="8" fill="#5a3010"/><rect x="20" y="4" width="2" height="8" fill="#5a3010"/><rect x="10" y="2" width="10" height="5" fill="#5a3010" rx="1"/><rect x="8" y="13" width="14" height="14" rx="2" fill="#f5f5f5"/><rect x="11" y="25" width="8" height="3" rx="1" fill="#f5f5f5" stroke="#ccc" stroke-width="0.5"/></svg>`,
+  sophia:`<svg width="28" height="28" viewBox="0 0 30 34" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated"><rect x="10" y="2" width="10" height="10" rx="2" fill="#c8956c"/><rect x="8" y="3" width="2" height="9" fill="#4a2a0a"/><rect x="20" y="3" width="2" height="9" fill="#4a2a0a"/><rect x="10" y="2" width="10" height="4" fill="#4a2a0a" rx="1"/><rect x="12" y="8" width="6" height="2" rx="1" fill="#888" opacity="0.9"/><rect x="11" y="8" width="3" height="2" rx="1" fill="#aaccff" opacity="0.5"/><rect x="16" y="8" width="3" height="2" rx="1" fill="#aaccff" opacity="0.5"/><rect x="8" y="13" width="14" height="14" rx="2" fill="#1a1a1a"/><rect x="11" y="25" width="8" height="3" rx="1" fill="#1a5fa8"/></svg>`,
+};
+
+// ══ ESTADO ══
+let state={xp:0,belt:0,missions:{}};
+try{const s=localStorage.getItem('olivia_v6');if(s)state=JSON.parse(s);}catch(e){}
+function save(){try{localStorage.setItem('olivia_v6',JSON.stringify(state));}catch(e){}}
+
+// ══ UTIL ══
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);
+}
+function updateXP(){
+  const b=BELTS[state.belt],nb=BELTS[state.belt+1];
+  const pct=nb?Math.min(100,Math.round((state.xp-b.xpNeeded)/(nb.xpNeeded-b.xpNeeded)*100)):100;
+  document.getElementById('xpFill').style.width=pct+'%';
+  document.getElementById('xpNum').textContent=state.xp;
+}
+function updateBeltDisplay(){
+  const b=BELTS[state.belt];
+  document.getElementById('beltSwatch').style.background=b.color;
+  document.getElementById('beltNameLbl').textContent='FAIXA '+b.name;
+  document.getElementById('beltRect').setAttribute('fill',b.color);
+}
+
+// ══ TABS ══
+function showTab(tab){
+  ['dojo','missoes','trilha','elenco'].forEach((t,i)=>{
+    document.getElementById('content-'+t).style.display=t===tab?'block':'none';
+    document.querySelectorAll('.tab')[i].className='tab'+(t===tab?' active':'');
+  });
+  if(tab==='dojo')renderDojo();
+  if(tab==='missoes')renderMissions();
+  if(tab==='trilha')renderTrail();
+  if(tab==='elenco')renderCast();
+}
+
+// ══ DOJO ══
+let dojoTimer=null;
+function typeIt(elId,txt){
+  const el=document.getElementById(elId);
+  if(dojoTimer)clearInterval(dojoTimer);
+  el.textContent='';let i=0;
+  dojoTimer=setInterval(()=>{el.textContent+=txt[i];i++;if(i>=txt.length)clearInterval(dojoTimer);},28);
+}
+function renderDojo(){
+  updateBeltDisplay();
+  document.getElementById('cartaAvatar').innerHTML=SPRITES.sophia;
+  document.getElementById('cartaTexto').textContent=SOPHIA_CARTAS[state.belt];
+  const el=document.getElementById('dojoMissions');el.innerHTML='';
+  (MISSIONS[state.belt]||[]).slice(0,3).forEach(m=>el.appendChild(buildCard(m)));
+  document.getElementById('dojoSpAvatar').innerHTML=SPRITES.lari;
+  const lines=CHARS.lari.dialogs;
+  typeIt('dojoDialogTxt',lines[state.belt%lines.length]);
+}
+
+// ══ MISSOES ══
+function buildCard(m){
+  const done=!!state.missions[m.id];
+  const d=document.createElement('div');
+  let cls='mission-card';
+  if(m.tipo==='quiz')cls+=' quiz-card';
+  if(m.tipo==='casa')cls+=' casa-card';
+  if(done)cls+=' done';
+  d.className=cls;
+  const badge=m.tipo==='quiz'?'<span class="mbadge quiz-badge">QUIZ</span>':
+               m.tipo==='casa'?'<span class="mbadge casa-badge">CASA</span>':'';
+  d.innerHTML=`<div class="mcheck">${done?'✓':''}</div><div class="minfo"><div class="mtitle">${m.title}${badge}</div><div class="msub">${m.sub}</div></div><div class="mxp">+${m.xp}XP</div>`;
+  if(!done){
+    if(m.tipo==='quiz')d.onclick=()=>startQuiz(m);
+    else if(m.tipo==='casa')d.onclick=()=>startCasa(m);
+    else d.onclick=()=>completeMission(m);
+  }
+  return d;
+}
+function renderMissions(){
+  document.getElementById('missLabel').textContent='FAIXA '+BELTS[state.belt].name;
+  const el=document.getElementById('missionList');el.innerHTML='';
+  (MISSIONS[state.belt]||[]).forEach(m=>el.appendChild(buildCard(m)));
+}
+function completeMission(m){
+  if(state.missions[m.id])return;
+  state.missions[m.id]=true;state.xp+=m.xp;save();
+  toast('+'+m.xp+' XP!  '+m.title);
+  updateXP();checkGrad();renderMissions();renderDojo();
+}
+
+// ══ QUIZ ══
+let quizM=null,quizQ=[],quizIdx=0,quizOk=0,quizLocked=false;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function genQ(mn,mx,n=5){
+  return Array.from({length:n},()=>{
+    const a=mn+Math.floor(Math.random()*(mx-mn+1)),b=1+Math.floor(Math.random()*9),ans=a*b;
+    const opts=new Set([ans]);
+    while(opts.size<4){const w=ans+Math.floor(Math.random()*20)-10;if(w>0&&w!==ans)opts.add(w);}
+    return{a,b,ans,opts:shuffle([...opts])};
+  });
+}
+function startQuiz(m){
+  quizM=m;quizQ=genQ(m.tabMin,m.tabMax);quizIdx=0;quizOk=0;quizLocked=false;
+  document.getElementById('quizOv').classList.add('show');
+  renderQuizQ();
+}
+function renderQuizQ(){
+  document.getElementById('quizProg').textContent=(quizIdx+1)+'/'+quizQ.length;
+  if(quizIdx>=quizQ.length){renderQuizResult();return;}
+  const q=quizQ[quizIdx];quizLocked=false;
+  document.getElementById('quizBody').innerHTML=`
+    <div class="quiz-question">
+      <div class="quiz-q-txt">${q.a} × ${q.b} = ?</div>
+      <div class="quiz-q-sub">Toque na resposta certa</div>
+    </div>
+    <div class="quiz-options">
+      ${q.opts.map(o=>`<button class="quiz-opt" onclick="answerQ(${o},${q.ans},this)">${o}</button>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="quizFb"></div>`;
+}
+function answerQ(chosen,correct,btn){
+  if(quizLocked)return;quizLocked=true;
+  document.querySelectorAll('.quiz-opt').forEach(b=>{
+    b.style.pointerEvents='none';
+    if(parseInt(b.textContent)===correct)b.classList.add('correct');
+  });
+  const fb=document.getElementById('quizFb');
+  if(chosen===correct){quizOk++;btn.classList.add('correct');fb.textContent='Certo! 🥋';fb.style.color='#90ff90';}
+  else{btn.classList.add('wrong');fb.textContent='Era '+correct+'!';fb.style.color='#ff9090';}
+  setTimeout(()=>{quizIdx++;renderQuizQ();},1000);
+}
+function renderQuizResult(){
+  const ok=quizOk>=4;
+  document.getElementById('quizProg').textContent='Fim!';
+  document.getElementById('quizBody').innerHTML=`
+    <div class="quiz-result">
+      <div class="result-score">${quizOk===5?'🏆':quizOk>=4?'⭐':'💪'}</div>
+      <div class="result-msg">${quizOk}/5 certas!</div>
+      <div class="result-sub">${ok?'Mandou bem!\nMissao concluida!':'Quase!\nTente de novo.'}</div>
+      ${ok
+        ?`<button class="btn-quiz" onclick="closeQuiz(true)">RECEBER XP!</button>`
+        :`<div class="btn-row">
+            <button class="btn-quiz retry" onclick="retryQuiz()">TENTAR DE NOVO</button>
+            <button class="btn-quiz" style="background:#222" onclick="closeQuiz(false)">FECHAR</button>
+          </div>`}
+    </div>`;
+}
+function retryQuiz(){quizQ=genQ(quizM.tabMin,quizM.tabMax);quizIdx=0;quizOk=0;renderQuizQ();}
+function closeQuiz(ok){document.getElementById('quizOv').classList.remove('show');if(ok&&quizM)completeMission(quizM);}
+
+// ══ CASA ══
+let casaM=null,casaChecked=new Set();
+function startCasa(m){
+  casaM=m;casaChecked=new Set();
+  const tasks=document.getElementById('casaTasks');tasks.innerHTML='';
+  CASA_TASKS.forEach(t=>{
+    const d=document.createElement('div');
+    d.className='casa-task';d.id='ct-'+t.id;
+    d.innerHTML=`<div class="casa-check" id="cc-${t.id}"></div><div class="casa-task-icon">${t.icon}</div><div class="casa-task-name">${t.name}</div>`;
+    d.onclick=()=>toggleCasa(t.id);
+    tasks.appendChild(d);
+  });
+  document.getElementById('casaConfirm').disabled=true;
+  document.getElementById('casaOv').classList.add('show');
+}
+function toggleCasa(id){
+  const d=document.getElementById('ct-'+id),c=document.getElementById('cc-'+id);
+  if(casaChecked.has(id)){casaChecked.delete(id);d.classList.remove('checked');c.textContent='';}
+  else{casaChecked.add(id);d.classList.add('checked');c.textContent='✓';}
+  document.getElementById('casaConfirm').disabled=casaChecked.size<2;
+}
+function confirmCasa(){
+  document.getElementById('casaOv').classList.remove('show');
+  if(casaM)completeMission(casaM);
+}
+function closeCasa(){document.getElementById('casaOv').classList.remove('show');}
+
+// ══ TRILHA ══
+function renderTrail(){
+  const el=document.getElementById('trailList');el.innerHTML='';
+  BELTS.forEach((b,i)=>{
+    if(i>0){const c=document.createElement('div');c.className='connector'+(i<=state.belt?' done':'');el.appendChild(c);}
+    const row=document.createElement('div');
+    row.className='trail-item'+(i===state.belt?' active':i<state.belt?' done':' locked');
+    const stripe=b.stripe?`<div class="tb-stripe" style="background:${b.stripe};width:55%"></div>`:'';
+    row.innerHTML=`<div class="trail-belt"><div class="tb-main" style="background:${b.color}"></div>${stripe}</div><div class="trail-info"><div class="ti-name">FAIXA ${b.name}</div><div class="ti-xp">${b.xpNeeded} XP</div></div><div class="trail-icon">${i<state.belt?'✓':i===state.belt?'▶':'🔒'}</div>`;
+    el.appendChild(row);
+  });
+}
+
+// ══ GRADUAÇÃO ══
+function checkGrad(){
+  const nb=BELTS[state.belt+1];
+  if(!nb||state.xp<nb.xpNeeded)return;
+  state.belt++;save();setTimeout(()=>showGrad(state.belt),400);
+}
+function showGrad(bi){
+  document.getElementById('gradBelt').style.background=BELTS[bi].color;
+  document.getElementById('gradMsgSophia').textContent=SOPHIA_GRAD[bi-1]||'Que orgulho!';
+  document.getElementById('gradMsgLari').textContent=LARI_GRAD[bi-1]||'Parabens!';
+  document.getElementById('gradOv').classList.add('show');
+  updateBeltDisplay();updateXP();
+}
+function closeGrad(){document.getElementById('gradOv').classList.remove('show');renderDojo();renderMissions();}
+
+// ══ ELENCO ══
+let castChar='lari',castIdx=0,castTimer=null;
+function renderCast(){
+  const grid=document.getElementById('castGrid');grid.innerHTML='';
+  Object.entries(CHARS).forEach(([key,c])=>{
+    const card=document.createElement('div');
+    card.id='cc-'+key;
+    card.className='cast-card'+(key===castChar?(key==='sophia'?' sel-sophia':' sel'):'');
+    card.innerHTML=`<div style="width:50px;height:50px;background:#0d0d20;border-radius:6px;display:flex;align-items:center;justify-content:center">${SPRITES[key]}</div><div class="cc-name">${c.name}</div><div class="cc-role">${c.role}</div><div class="cc-belt" style="background:${c.beltColor}"></div>`;
+    card.onclick=()=>selectCast(key);
+    grid.appendChild(card);
+  });
+  showCastDialog(castChar,castIdx);
+}
+function selectCast(key){
+  castChar=key;castIdx=0;
+  document.querySelectorAll('.cast-card').forEach(c=>c.className='cast-card');
+  const cc=document.getElementById('cc-'+key);
+  if(cc)cc.className='cast-card'+(key==='sophia'?' sel-sophia':' sel');
+  const box=document.getElementById('castDialogBox'),spk=document.getElementById('castSpkBar'),
+        av=document.getElementById('castSpAvatar'),nm=document.getElementById('castSpName');
+  if(key==='sophia'){box.classList.add('sophia-box');spk.classList.add('sophia-spk');av.classList.add('sophia-av');nm.classList.add('sophia-nm');}
+  else{box.classList.remove('sophia-box');spk.classList.remove('sophia-spk');av.classList.remove('sophia-av');nm.classList.remove('sophia-nm');}
+  showCastDialog(key,0);
+}
+function showCastDialog(key,idx){
+  document.getElementById('castSpAvatar').innerHTML=SPRITES[key];
+  document.getElementById('castSpName').textContent=CHARS[key].name;
+  if(castTimer)clearInterval(castTimer);
+  const el=document.getElementById('castDialogTxt');el.textContent='';let i=0;
+  const txt=CHARS[key].dialogs[idx];
+  castTimer=setInterval(()=>{el.textContent+=txt[i];i++;if(i>=txt.length)clearInterval(castTimer);},28);
+}
+function nextCastDialog(){castIdx=(castIdx+1)%CHARS[castChar].dialogs.length;showCastDialog(castChar,castIdx);}
+
+// ══ PWA INSTALAR ══
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('installBanner').classList.remove('hidden');
+});
+window.addEventListener('appinstalled',()=>{
+  document.getElementById('installBanner').classList.add('hidden');
+});
+function installApp(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(()=>{deferredPrompt=null;});
+}
+function dismissInstall(){document.getElementById('installBanner').classList.add('hidden');}
+
+// ══ SERVICE WORKER ══
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+
+// ══ ESTRELAS ══
+function drawStars(){
+  const c=document.getElementById('starCanvas');if(!c)return;
+  c.width=window.innerWidth;c.height=window.innerHeight;
+  const ctx=c.getContext('2d');
+  for(let i=0;i<80;i++){
+    ctx.beginPath();
+    ctx.arc(Math.random()*c.width,Math.random()*c.height,Math.random()*1.2+0.3,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${(Math.random()*0.5+0.2).toFixed(2)})`;
+    ctx.fill();
+  }
+}
+
+function startGame(){
+  document.getElementById('s-intro').classList.remove('active');
+  document.getElementById('s-game').classList.add('active');
+  updateXP();updateBeltDisplay();renderDojo();
+  document.getElementById('installBanner').classList.add('hidden');
+}
+
+// Banner de instalar so aparece depois de entrar no jogo
+document.getElementById('installBanner').classList.add('hidden');
+drawStars();
+</script>
+</body>
+</html>
